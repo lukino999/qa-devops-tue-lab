@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <script src="./jquery_dev/jquery-3.5.1.js"></script>
+        <style>
+            html {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: medium;
+            }
+
+            .inline {
+                display: inline;
+            }
+
+            .goodService {
+                background-color: green;
+            }
+
+            .minorDelays {
+                background-color: orange;
+            }
+        </style>
+        <title>Document</title>
+    </head>
+    <body>
+        <h1>Get time</h1>
+        <button onclick="onGetUpdatesClick()">Get time</button>
+        <p id="placeholder"></p>
+    </body>
+    <script>
+        function onGetUpdatesClick() {
+            console.log("GetUpdates click");
+
+            const url =
+                "http://luca-timestamp-api.eu-west-2.elasticbeanstalk.com/api/timestamp";
+
+            $.getJSON(url, onSuccess).fail(onFail);
+        }
+
+        const placeholder = $("#placeholder");
+        function onSuccess(data) {
+            console.log(data);
+
+            placeholder.text(data.utc);
+
+            return;
+
+            placeholder.append($("<ul>").prop("id", "list"));
+
+            data.forEach(l => {
+                const name = l.name;
+                const status = l.lineStatuses[0].statusSeverityDescription;
+
+                const statusHTML = $("<div>").text(status);
+
+                let statusClass = "";
+                switch (status) {
+                    case "Good Service":
+                        statusClass = "goodService";
+                        break;
+
+                    case "Minor Delays":
+                        statusClass = "minorDelays";
+                }
+
+                // console.log('statusClass', statusClass);
+                statusHTML.addClass("inline");
+                statusHTML.addClass(statusClass);
+
+                const listElement = $("<li>")
+                    .text(`${name} - `)
+                    .append(statusHTML);
+
+                $("#list").append(listElement);
+            });
+        }
+
+        function onFail(error) {
+            console.log(error.statusText);
+            placeholder.append($("<p>").text("Endpoint not found"));
+        }
+    </script>
+</html>
